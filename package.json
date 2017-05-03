@@ -1,0 +1,35 @@
+{
+  "name": "knimbus-recv",
+  "version": "0.2.0",
+  "description": "KNimbus Personal Weather Station Receiver for Node.JS",
+  "main": "radio.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kevkearney/knimbus-recv.git"
+  },
+  "keywords": [
+    "weather",
+    "station",
+    "raspberrypi",
+    "arduino"
+  ],
+  "author": "Kevin D. Kearney",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/kevkearney/knimbus-recv/issues"
+  },
+  "homepage": "https://github.com/kevkearney/knimbus-recv#readme",
+  "dependencies": {
+    "binary-parser": "^1.1.5",
+    "bootstrap": "^3.3.7",
+    "express": "^4.15.2",
+    "mongodb": "^2.2.25",
+    "mongoose": "^4.9.3",
+    "nrf": "^0.8.3",
+    "object-sizeof": "^1.1.1",
+    "socket.io": "^1.7.3"
+  }
+}

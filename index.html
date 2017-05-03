@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Weather Table</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+</head>
+<body>
+  <script>
+   $(function () {
+        var socket = io();
+        socket.on('weather message', function(msg){        
+        var tr;
+        tr = $('<tr/>');
+        tr.append("<td>" + new Date(msg.SampleDate).toString() + "</td>");
+        tr.append("<td>" + toFahrenheit(msg.BaroTemperature).toFixed(2) + " F"+ "</td>");
+        tr.append("<td>" + toSeaLevelPressure(msg.BaroPressure).toFixed(2) + " inHg" + "</td>");
+        tr.append("<td>" + toFahrenheit(msg.Temperature).toFixed(2) +" F" + "</td>");
+        tr.append("<td>" + msg.Humidity + " %"  + "</td>");
+        tr.append("<td>" + msg.Lux + " Lux "+ "</td>");
+        $('#weathertable').append(tr);
+    }); 
+       });
+
+function toFahrenheit(c) {
+    return c *(9/5) +32;
+}
+
+function toSeaLevelPressure(hpa){
+  var sl = hpa / Math.pow(1.0 - (320.4/44330.0), 5.255);
+  return sl / 33.8638866667;
+}
+  </script>
+  <body>
+    <table id="weathertable" class="table">
+    <tr>
+   <th>Sample Date</th>
+   <th>Baro Temp</th>
+   <th>Baro Pessure</th>
+   <th>Temperature</th>
+   <th>Humidity</th>
+   <th>Light Level</th>
+ </tr>
+    </table>
+  </body>
+</html>
