@@ -1,7 +1,7 @@
 var sizeof = require('object-sizeof');
 var weatherDB = require("./data/weatherDB");
 var Parser = require('binary-parser').Parser;
-var weatherMsg = new Parser().endianess('big').float('Lux').float('BaroTemperature').float('BaroPressure').uint16('Humidity').float('Temperature');
+var weatherMsg = new Parser().endianess('big').uint16('Lux').int16('BaroTemperature').int16('BaroPressure').int16('Humidity').int16('Temperature');
 var sleepTime = 30;
 var socket = require('socket.io-client')('http://localhost:3000');
 
@@ -11,7 +11,7 @@ var NRF24 = require('nrf'),
 	irqPin = 25, //var ce = require("./gpio").connect(cePin)
 	pipes = [0xF0F0F0F0E1, 0xF0F0F0F0D2];
 var nrf = NRF24.connect(spiDev, cePin, irqPin);
-//nrf._debug = true;
+//nrf._debug = true;git 
 nrf.channel(0x4c); // Set channel to 76
 nrf.transmitPower('PA_MAX');
 nrf.dataRate('1Mbps') // Set data rate to 1Mbps
