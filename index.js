@@ -3,8 +3,6 @@ var http = require('http').Server(app);
 var io = require('socket.io')(http);
 var radio = require('./radio.js');
 
-var weatherDB = require("./data/weatherDB").weatherStream(io);
-
 io.on('connection', function (socket) {
     console.log('a user connected');
     socket.on('disconnect', function () {
@@ -13,8 +11,11 @@ io.on('connection', function (socket) {
  
     socket.on('weather message', function (msg) {
         socket.broadcast.emit('weather message', msg);
-      //  console.log('message message: ' + msg.toString());
     });
+    socket.on('lightning message', function (msg) {
+	socket.broadcast.emit('lightning message', msg);
+    });
+
 });
 
 app.get('/', function(req, res){
