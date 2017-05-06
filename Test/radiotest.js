@@ -4,16 +4,13 @@ var reverse = require("buffer-reverse");
 
 var weathermsg = new cppMsg.msg(
 	[
-		['Temperature', 'int16'],
-		['Humidty', 'int16'],
-		['BaroPressure', 'int16'],
-		['BaroTemperature', 'int16'],
-		['Lux', 'uint16'],
-		['test', 'bool']
+		['ProtocolVersion', 'int16'],
+		['MessageType', 'int16'],
+		['Data', 'object']
 	]
 );
 
-var weathermsg = new cppMsg.msg(
+var weatherDatamsg = new cppMsg.msg(
 	[
 		['Temperature', 'int16'],
 		['Humidty', 'int16'],
@@ -62,6 +59,8 @@ nrf.begin(function() {
 
 		var response = {sleeptime: 10, lightningIndoors: true, lightningTune: 4, lightningNoiseFloor: 4, radioPower: 3};
 		              var responseBuf = weathercontrolmsg.encodeMsg(response);
+
+
 
 		               tx.write(reverse(responseBuf), sizeof(responseBuf));
 
