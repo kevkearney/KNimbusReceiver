@@ -10,7 +10,6 @@ var weatherControl = Struct()
         .word16Sbe('lightningNoiseFloor',1)
         .word16Sbe('radioPower', 1)
 
-
 var NRF24 = require('nrf'),
 	spiDev = "/dev/spidev0.0",
 	cePin = 24,
@@ -36,11 +35,10 @@ nrf.begin(function() {
                 var weatherData = weatherMsg.parse(d);
 
 		console.log(weatherData);
-                weatherControl.allocate();
-                var buf = weatherControl.buffer();
-                buf.fill(0);
+                var weatherControlBuffer = new Buffer(weatherControl.length());
+                weatherControlBuffer.fill(0);
+
                 var proxy = weatherControl.fields;
-                proxy.presentCount = 1;
                 proxy.list[0].sleepTime = 10;
 	        proxy.list[0].lightningIndoors = 0;
                 proxy.list[0].lightningTune = 2;
