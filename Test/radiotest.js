@@ -1,15 +1,16 @@
-var Struct = require('struct');
-var sizeof = require('object-sizeof');
-var Parser = require('binary-parser').Parser;
-//var weatherMsg = new Parser().endianess('big').uint16('BaroTemperature').uint16('BaroPressure').uint16('Humidity').uint16('Temperature').uint16('Lux');
-var weatherMsg = new Parser().endianess('big').uint16('Lux').int16('BaroTemperature').int16('BaroPressure').int16('Humidity').int16('Temperature');
-var weatherControl = Struct()
-	.word16Sbe('sleepTime',4)
-	.word8Sbe('lightningIndoors',1)
-        .word16Sbe('lightningTune',1)
-        .word16Sbe('lightningNoiseFloor',1)
-        .word16Sbe('radioPower', 1)
 
+var sizeof = require('object-sizeof');
+var cppMsg = require('./cppMsg.js');
+
+var weathermsg = new cppMsg.msg(
+        [
+            ['Temperature','int16'],
+            ['Humidty','int16'],
+            ['BaroPressure','int16'],
+            ['BaroTemperature', 'int16'],
+            ['Lux','uint16']
+        ]
+        );
 
 var NRF24 = require('nrf'),
 	spiDev = "/dev/spidev0.0",
@@ -33,19 +34,8 @@ nrf.begin(function() {
         tx = nrf.openPipe('tx', pipes[0]);
 	 
 	rx.on('data', function(d) {		
-                var weatherData = weatherMsg.parse(d);
-
-		console.log(weatherData);
-                weatherControl.allocate();
-                var buf = weatherControl.buffer();
-                buf.fill(0);
-                var proxy = weatherControl.fields;
-                proxy.presentCount = 1;
-                proxy.list[0].sleepTime = 10;
-	        proxy.list[0].lightningIndoors = 0;
-                proxy.list[0].lightningTune = 2;
-                proxy.list[0].lightningNoiseFloor = 4;
-                proxy.list[0].radioPower = 3;
+               var data = weathermsg.decodeMsg(d);
+               console.log(data);
 
 //                var response = {sleeptime: 10, lightningIndoors: true, lightningTune: 4, lightningNoiseFloor: 4, radioPower: 3};
   //              var convertedResponse = weatherControl.parse(response);
