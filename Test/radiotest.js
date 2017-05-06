@@ -1,15 +1,18 @@
 
 var sizeof = require('object-sizeof');
-var cppMsg = require('./cppMsg.js');
+var cppMsg = require('../node_modules/cppmsg/cppMsg.js');
+var reverse = require("buffer-reverse");
 
 var weathermsg = new cppMsg.msg(
-        [
-            ['Temperature','int16'],
-            ['Humidty','int16'],
-            ['BaroPressure','int16'],
-            ['BaroTemperature', 'int16'],
-            ['Lux','uint16']
-        ]
+[
+  ['Temperature', 'int16'],
+ ['Humidty','int16'],
+['BaroPressure','int16'],
+ ['BaroTemperature', 'int16'],
+
+           ['Lux','uint16'],
+['test','bool']
+]
         );
 
 var NRF24 = require('nrf'),
@@ -33,14 +36,15 @@ nrf.begin(function() {
 	var rx = nrf.openPipe('rx', pipes[1]),
         tx = nrf.openPipe('tx', pipes[0]);
 	 
-	rx.on('data', function(d) {		
-               var data = weathermsg.decodeMsg(d);
+	rx.on('data', function(d) {
+               	console.log(d);
+               var data = weathermsg.decodeMsg(reverse(d));
                console.log(data);
 
 //                var response = {sleeptime: 10, lightningIndoors: true, lightningTune: 4, lightningNoiseFloor: 4, radioPower: 3};
   //              var convertedResponse = weatherControl.parse(response);
 
-                tx.write(reverse(buf), sizeof(buf));
+ //               tx.write(reverse(buf), sizeof(buf));
 
 	});
 	tx.on('error', function(e) {
@@ -49,8 +53,8 @@ nrf.begin(function() {
 	});
 });
 
-function reverse(s) {
-	return s.split("").reverse().join("");
-}
+//function reverse(s) {
+//	return s.split("").reverse().join("");
+//}
 
 
