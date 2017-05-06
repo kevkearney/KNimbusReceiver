@@ -1,19 +1,38 @@
-
 var sizeof = require('object-sizeof');
 var cppMsg = require('../node_modules/cppmsg/cppMsg.js');
 var reverse = require("buffer-reverse");
 
 var weathermsg = new cppMsg.msg(
-[
-  ['Temperature', 'int16'],
- ['Humidty','int16'],
-['BaroPressure','int16'],
- ['BaroTemperature', 'int16'],
+	[
+		['Temperature', 'int16'],
+		['Humidty', 'int16'],
+		['BaroPressure', 'int16'],
+		['BaroTemperature', 'int16'],
+		['Lux', 'uint16'],
+		['test', 'bool']
+	]
+);
 
-           ['Lux','uint16'],
-['test','bool']
-]
-        );
+var weathermsg = new cppMsg.msg(
+	[
+		['Temperature', 'int16'],
+		['Humidty', 'int16'],
+		['BaroPressure', 'int16'],
+		['BaroTemperature', 'int16'],
+		['Lux', 'uint16'],
+		['test', 'bool']
+	]
+);
+
+var weathercontrolmsg = new cppMsg.msg(
+	[
+		['sleepTime', 'int16'],
+		['lightningIndoors', 'bool'],
+		['lightningTune', 'int16'],
+		['lightningNoiseFloor', 'int16'],
+		['radioPower', 'int16']
+	]
+	);
 
 var NRF24 = require('nrf'),
 	spiDev = "/dev/spidev0.0",
@@ -34,17 +53,17 @@ nrf.autoRetransmit({
 nrf.begin(function() {
 	console.log("Radio recevier listening.");
 	var rx = nrf.openPipe('rx', pipes[1]),
-        tx = nrf.openPipe('tx', pipes[0]);
-	 
+		tx = nrf.openPipe('tx', pipes[0]);
+
 	rx.on('data', function(d) {
-               	console.log(d);
-               var data = weathermsg.decodeMsg(reverse(d));
-               console.log(data);
+		console.log(d);
+		var data = weathermsg.decodeMsg(reverse(d));
+		console.log(data);
 
-//                var response = {sleeptime: 10, lightningIndoors: true, lightningTune: 4, lightningNoiseFloor: 4, radioPower: 3};
-  //              var convertedResponse = weatherControl.parse(response);
+		var response = {sleeptime: 10, lightningIndoors: true, lightningTune: 4, lightningNoiseFloor: 4, radioPower: 3};
+		              var responseBuf = weathercontrolmsg.encodeMsg(response);
 
- //               tx.write(reverse(buf), sizeof(buf));
+		               tx.write(reverse(responseBuf), sizeof(responseBuf));
 
 	});
 	tx.on('error', function(e) {
@@ -56,5 +75,3 @@ nrf.begin(function() {
 //function reverse(s) {
 //	return s.split("").reverse().join("");
 //}
-
-
