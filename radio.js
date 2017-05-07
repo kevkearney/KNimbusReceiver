@@ -1,6 +1,6 @@
 var sizeof = require('object-sizeof');
 var weatherDB = require("./data/weatherDB");
-var cppMsg = require('../node_modules/cppmsg/cppMsg.js');
+var cppMsg = require('./node_modules/cppmsg/cppMsg.js');
 var reverse = require("buffer-reverse");
 
 var weatherdatamsg = new cppMsg.msg(
@@ -78,11 +78,19 @@ nrf.begin(function() {
 		if (typeCode === 1) {
 			var data = weatherdatamsg.decodeMsg(reverse(d));
 			console.log(data);
+			data.SampleDate = new Date();
+			weatherDB.insertWeather(data, function(currentDate) {
+				socket.emit('weather message', data);
+			});
         
 		}
 		else if(typeCode === 2) {
 			var data = lightningMsg.decodeMsg(reverse(d));
 			console.log(data);
+			weatherDB.insertLightning(data, () => {
+                                        socket.emit('lightning message', data);
+					console.log("disturber complete!")
+				});
 		}
 		else{
 				console.warn("No suitable struct found for decode.");
