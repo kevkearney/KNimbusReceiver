@@ -18,10 +18,10 @@
         var tr;
         tr = $('<tr/>');
         tr.append("<td>" + new Date(msg.SampleDate).toLocaleDateString() + "    " + new Date(msg.SampleDate).toLocaleTimeString() + "</td>");
-        tr.append("<td>" + toFahrenheit(msg.BaroTemperature).toFixed(2) + " F"+ "</td>");
-        tr.append("<td>" + toSeaLevelPressure(msg.BaroPressure).toFixed(2) + " inHg" + "</td>");
-        tr.append("<td>" + toFahrenheit(msg.Temperature).toFixed(2) +" F" + "</td>");
-        tr.append("<td>" + msg.Humidity + " %"  + "</td>");
+        tr.append("<td>" + toFahrenheit(msg.BaroTemperature/100).toFixed(2) + " F"+ "</td>");
+        tr.append("<td>" + toSeaLevelPressure(msg.BaroPressure/10).toFixed(2) + " inHg" + "</td>");
+        tr.append("<td>" + toFahrenheit(msg.Temperature/100).toFixed(2) +" F" + "</td>");
+        tr.append("<td>" + (msg.Humidity/100).toFixed(2) + " %"  + "</td>");
         tr.append("<td>" + msg.Lux + " Lux "+ "</td>");
         $('#weathertable').append(tr);
     }); 
