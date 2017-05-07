@@ -1,9 +1,54 @@
 var sizeof = require('object-sizeof');
 var weatherDB = require("./data/weatherDB");
-var Parser = require('binary-parser').Parser;
-var weatherMsg = new Parser().endianess('big').uint16('Lux').int16('BaroTemperature').int16('BaroPressure').int16('Humidity').int16('Temperature');
-var sleepTime = 30;
+var cppMsg = require('./node_modules/cppmsg/cppMsg.js');
+var reverse = require("buffer-reverse");
+
+
+//Test code, remove when complete
+var response = {
+        SleepTime: 10,
+        LightningIndoors: false,
+        LightningTune: 0,
+        LightningNoiseFloor: 4,
+        RadioPower: 2,
+        SystemReset: 0
+};
+
+
+var weatherdatamsg = new cppMsg.msg(
+	[
+		['MessageType', 'int8'],
+		['Temperature', 'int16'],
+		['Humidty', 'int16'],
+		['BaroPressure', 'int16'],
+		['BaroTemperature', 'int16'],
+		['Lux', 'uint16']
+	]
+);
+
+var lightningMsg = new cppMsg.msg(
+	[
+		['MessageType', 'int8'],
+		['EventType', 'int16'],
+		['Distance', 'int16'],
+		['Intensity', 'int16']
+	]
+);
+
+var weathercontrolmsg = new cppMsg.msg(
+	[
+		['SleepTime', 'int16'],
+		['LightningIndoors', 'bool'],
+		['LightningTune', 'int16'],
+		['LightningNoiseFloor', 'int16'],
+		['RadioPower', 'int16'],
+		['SystemReset', 'bool']
+	]
+);
+
 var socket = require('socket.io-client')('http://localhost:3000');
+
+
 
 var NRF24 = require('nrf'),
 	spiDev = "/dev/spidev0.0",
@@ -11,14 +56,14 @@ var NRF24 = require('nrf'),
 	irqPin = 25, //var ce = require("./gpio").connect(cePin)
 	pipes = [0xF0F0F0F0E1, 0xF0F0F0F0D2];
 var nrf = NRF24.connect(spiDev, cePin, irqPin);
-//nrf._debug = true;
+
 nrf.channel(0x4c); // Set channel to 76
 nrf.transmitPower('PA_MAX');
 nrf.dataRate('1Mbps') // Set data rate to 1Mbps
 nrf.crcBytes(2) // Set the CRC to 2
 nrf.autoRetransmit({
 	count: 500,
-	delay: 0
+	delay: 15
 });
 nrf.begin(function() {
 	console.log("Radio recevier listening.");
@@ -26,49 +71,41 @@ nrf.begin(function() {
 		tx = nrf.openPipe('tx', pipes[0]);
 
 	rx.on('data', function(d) {
-		var text = reverse(d.toString('utf8'));
 
-		//var response = '{sleepTime:' + sleepTime + '}';
-		//tx.write(reverse(response), sizeof(response));
-                var response = '1';
-                tx.write(response, sizeof(response));
-		console.log("Before Check!")
-		if (text.charAt(0) == 'L') {
-			var lightningData = new Object();
+		
+    var responseBuf = reverse(weathercontrolmsg.encodeMsg(response));
 
-			console.log("LIGHTNING EVENT DETECTED!")
-			var trimmedText = text.substr(1);
-			console.log(trimmedText);
+		tx.write(responseBuf,12);
+		
+		var typeCode = reverse(d).readUIntBE(0, 1);;
+		
+		if (typeCode === 1) {
+			var data = weatherdatamsg.decodeMsg(reverse(d));
+			console.log(data);
+			data.SampleDate = new Date();
+			weatherDB.insertWeather(data, function(currentDate) {
+				socket.emit('weather message', data);
 
-			var n = trimmedText.indexOf(":");
-                        console.log(n);
-			if (n == -1) {
-				lightningData.EventType = trimmedText;
-				lightningData.SampleDate = new Date();
-                                console.log(lightningData);
-				weatherDB.insertLightning(lightningData, () => {
-                                        socket.emit('lightning message', lightningData);
-					console.log("disturber complete!")
-				});
-			}
-			else {
-				lightningData.EventType = trimmedText.substring(0, n);
-				lightningData.Distance = trimmedText.substring(13);
-				lightningData.SampleDate = new Date();
-				weatherDB.insertLightning(lightningData, () => {
-                                        socket.emit('lightning message', lightningData);
-					console.log("other complete!")
-				});
-			}
-		}
-		else {
-			var weatherData = weatherMsg.parse(d);
-			weatherData.SampleDate = new Date();
-			weatherDB.insertWeather(weatherData, function(currentDate) {
-				socket.emit('weather message', weatherData);
 			});
+        
 		}
 
+		else if(typeCode === 2) {
+			var data = lightningMsg.decodeMsg(reverse(d));
+			console.log(data);
+			weatherDB.insertLightning(data, () => {
+                                        socket.emit('lightning message', data);
+				});
+		}
+		else{
+				console.warn("No suitable struct found for decode.");
+		}
+	
+
+	});
+	tx.on('error', function(e) {
+		console.warn("Error sending reply.", e);
+		process.exit();
 	});
 	tx.on('error', function(e) {
 		console.warn("Error sending reply.", e);
@@ -76,6 +113,3 @@ nrf.begin(function() {
 	});
 });
 
-function reverse(s) {
-	return s.split("").reverse().join("");
-}
