@@ -39,11 +39,12 @@ var socket = require('socket.io-client')('http://localhost:3000');
 
 //Test code, remove when complete
 var response = {
-	sleeptime: 10,
-	lightningIndoors: true,
-	lightningTune: 4,
-	lightningNoiseFloor: 4,
-	radioPower: 3
+	SleepTime: 10,
+	LightningIndoors: true,
+	LightningTune: 2,
+	LightningNoiseFloor: 4,
+	RadioPower: 3,
+        SystemReset: 0
 };
 
 var NRF24 = require('nrf'),
@@ -61,7 +62,6 @@ nrf.autoRetransmit({
 	count: 500,
 	delay: 15
 });
-	var responseBuf = weathercontrolmsg.encodeMsg(response);
 nrf.begin(function() {
 	console.log("Radio recevier listening.");
 	var rx = nrf.openPipe('rx', pipes[1]),
@@ -69,8 +69,9 @@ nrf.begin(function() {
 
 	rx.on('data', function(d) {
 		
-	
-		tx.write(reverse(responseBuf),12);
+                var responseBuf = reverse(weathercontrolmsg.encodeMsg(response));
+	        console.log(sizeof(responseBuf));
+		tx.write(responseBuf,12);
 		
 		var typeCode = reverse(d).readUIntBE(0, 1);;
 		console.log(typeCode);
