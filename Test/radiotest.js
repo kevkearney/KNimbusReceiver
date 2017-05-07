@@ -2,24 +2,19 @@ var sizeof = require('object-sizeof');
 var cppMsg = require('../node_modules/cppmsg/cppMsg.js');
 var reverse = require("buffer-reverse");
 
-var weathermsg = new cppMsg.msg(
-	[
-		['ProtocolVersion', 'int16'],
-		['MessageType', 'int16'],
-		['Data', 'object']
-	]
-);
 
-var weatherDatamsg = new cppMsg.msg(
-	[
+var weatherdatamsg = new cppMsg.msg(
+                [
+                ['MessageType', 'int8'],
 		['Temperature', 'int16'],
 		['Humidty', 'int16'],
 		['BaroPressure', 'int16'],
 		['BaroTemperature', 'int16'],
-		['Lux', 'uint16'],
-		['test', 'bool']
+		['Lux', 'uint16']
 	]
 );
+
+
 
 var weathercontrolmsg = new cppMsg.msg(
 	[
@@ -31,6 +26,14 @@ var weathercontrolmsg = new cppMsg.msg(
 	]
 	);
 
+var lightningMsg = new cppMsg.msg(
+    [
+    ['MessageType','int8'],
+    ['EventType','int16'],
+    ['Distance','int16'],
+    ['Intensity','int16']
+    ]
+);
 var NRF24 = require('nrf'),
 	spiDev = "/dev/spidev0.0",
 	cePin = 24,
@@ -53,10 +56,17 @@ nrf.begin(function() {
 		tx = nrf.openPipe('tx', pipes[0]);
 
 	rx.on('data', function(d) {
-		console.log(d);
-		var data = weathermsg.decodeMsg(reverse(d));
-		console.log(data);
+                
+                var typeCode = reverse(d).readUIntBE(0, 1);;
+                console.log(typeCode);
+                if(typeCode === 1){
+		var data = weatherdatamsg.decodeMsg(reverse(d));
+console.log(data);
 
+                }else{
+                var otherdata = lightningMsg.decodeMsg(reverse(d));
+console.log(otherdata);
+}
 		var response = {sleeptime: 10, lightningIndoors: true, lightningTune: 4, lightningNoiseFloor: 4, radioPower: 3};
 		              var responseBuf = weathercontrolmsg.encodeMsg(response);
 
