@@ -3,6 +3,18 @@ var weatherDB = require("./data/weatherDB");
 var cppMsg = require('./node_modules/cppmsg/cppMsg.js');
 var reverse = require("buffer-reverse");
 
+
+//Test code, remove when complete
+var response = {
+        SleepTime: 10,
+        LightningIndoors: false,
+        LightningTune: 0,
+        LightningNoiseFloor: 4,
+        RadioPower: 2,
+        SystemReset: 0
+};
+
+
 var weatherdatamsg = new cppMsg.msg(
 	[
 		['MessageType', 'int8'],
@@ -37,15 +49,6 @@ var weathercontrolmsg = new cppMsg.msg(
 var socket = require('socket.io-client')('http://localhost:3000');
 
 
-//Test code, remove when complete
-var response = {
-	SleepTime: 10,
-	LightningIndoors: true,
-	LightningTune: 2,
-	LightningNoiseFloor: 4,
-	RadioPower: 3,
-        SystemReset: 0
-};
 
 var NRF24 = require('nrf'),
 	spiDev = "/dev/spidev0.0",
@@ -90,7 +93,6 @@ nrf.begin(function() {
 			console.log(data);
 			weatherDB.insertLightning(data, () => {
                                         socket.emit('lightning message', data);
-					console.log("disturber complete!")
 				});
 		}
 		else{
