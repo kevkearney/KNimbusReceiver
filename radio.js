@@ -1,6 +1,6 @@
 var sizeof = require('object-sizeof');
 var weatherDB = require("./data/weatherDB");
-var cppMsg = require('../node_modules/cppmsg/cppMsg.js');
+var cppMsg = require('./node_modules/cppmsg/cppMsg.js');
 var reverse = require("buffer-reverse");
 
 var weatherdatamsg = new cppMsg.msg(
