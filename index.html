@@ -17,13 +17,22 @@
         socket.on('weather message', function(msg){        
         var tr;
         tr = $('<tr/>');
-        tr.append("<td>" + new Date(msg.SampleDate).toString() + "</td>");
+        tr.append("<td>" + new Date(msg.SampleDate).toLocaleDateString() + "    " + new Date(msg.SampleDate).toLocaleTimeString() + "</td>");
         tr.append("<td>" + toFahrenheit(msg.BaroTemperature).toFixed(2) + " F"+ "</td>");
         tr.append("<td>" + toSeaLevelPressure(msg.BaroPressure).toFixed(2) + " inHg" + "</td>");
         tr.append("<td>" + toFahrenheit(msg.Temperature).toFixed(2) +" F" + "</td>");
         tr.append("<td>" + msg.Humidity + " %"  + "</td>");
         tr.append("<td>" + msg.Lux + " Lux "+ "</td>");
         $('#weathertable').append(tr);
+    }); 
+    
+       socket.on('lightning message', function(msg){        
+        var tr;
+        tr = $('<tr/>');
+        tr.append("<td>" + new Date(msg.SampleDate).toLocaleDateString() + "    " + new Date(msg.SampleDate).toLocaleTimeString() + "</td>");
+        tr.append("<td>" + msg.EventType + "</td>");
+        tr.append("<td>" + msg.Distance + "</td>");
+        $('#lightningtable').append(tr);
     }); 
        });
 
@@ -32,12 +41,13 @@ function toFahrenheit(c) {
 }
 
 function toSeaLevelPressure(hpa){
-  var sl = hpa / Math.pow(1.0 - (320.4/44330.0), 5.255);
+  var sl = hpa / Math.pow(1.0 - (342/44330.0), 5.255);
   return sl / 33.8638866667;
 }
   </script>
   <body>
-    <table id="weathertable" class="table">
+<div class="col-xs-6 table-responsive ">
+    <table id="weathertable" class='table table-striped'>
     <tr>
    <th>Sample Date</th>
    <th>Baro Temp</th>
@@ -47,5 +57,15 @@ function toSeaLevelPressure(hpa){
    <th>Light Level</th>
  </tr>
     </table>
+</div>
+<div class="col-xs-3 table-responsive">
+   <table id="lightningtable" class='table table-striped'>
+    <tr>
+   <th>Sample Date</th>
+   <th>Event Type</th>
+   <th>Distance</th>
+ </tr>
+    </table>
+</div>
   </body>
 </html>

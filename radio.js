@@ -56,7 +56,7 @@ var NRF24 = require('nrf'),
 	irqPin = 25, //var ce = require("./gpio").connect(cePin)
 	pipes = [0xF0F0F0F0E1, 0xF0F0F0F0D2];
 var nrf = NRF24.connect(spiDev, cePin, irqPin);
-//nrf._debug = true; 
+
 nrf.channel(0x4c); // Set channel to 76
 nrf.transmitPower('PA_MAX');
 nrf.dataRate('1Mbps') // Set data rate to 1Mbps
@@ -71,13 +71,13 @@ nrf.begin(function() {
 		tx = nrf.openPipe('tx', pipes[0]);
 
 	rx.on('data', function(d) {
+
 		
-                var responseBuf = reverse(weathercontrolmsg.encodeMsg(response));
-//	        console.log(sizeof(responseBuf));
+    var responseBuf = reverse(weathercontrolmsg.encodeMsg(response));
+
 		tx.write(responseBuf,12);
 		
 		var typeCode = reverse(d).readUIntBE(0, 1);;
-//		console.log(typeCode);
 		
 		if (typeCode === 1) {
 			var data = weatherdatamsg.decodeMsg(reverse(d));
@@ -85,9 +85,11 @@ nrf.begin(function() {
 			data.SampleDate = new Date();
 			weatherDB.insertWeather(data, function(currentDate) {
 				socket.emit('weather message', data);
+
 			});
         
 		}
+
 		else if(typeCode === 2) {
 			var data = lightningMsg.decodeMsg(reverse(d));
 			console.log(data);
@@ -107,6 +109,7 @@ nrf.begin(function() {
 	});
 	tx.on('error', function(e) {
 		console.warn("Error sending reply.", e);
-		process.exit();
+		//process.exit();
 	});
 });
+
