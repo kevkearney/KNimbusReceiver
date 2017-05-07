@@ -109,7 +109,7 @@ nrf.begin(function() {
 	});
 	tx.on('error', function(e) {
 		console.warn("Error sending reply.", e);
-		//process.exit();
+		process.exit();
 	});
 });
 
