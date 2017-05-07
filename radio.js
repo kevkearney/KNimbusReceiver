@@ -61,7 +61,7 @@ nrf.autoRetransmit({
 	count: 500,
 	delay: 15
 });
-
+	var responseBuf = weathercontrolmsg.encodeMsg(response);
 nrf.begin(function() {
 	console.log("Radio recevier listening.");
 	var rx = nrf.openPipe('rx', pipes[1]),
@@ -69,8 +69,8 @@ nrf.begin(function() {
 
 	rx.on('data', function(d) {
 		
-		var responseBuf = weathercontrolmsg.encodeMsg(response);
-		tx.write(reverse(responseBuf), sizeof(responseBuf));
+	
+		tx.write(reverse(responseBuf),12);
 		
 		var typeCode = reverse(d).readUIntBE(0, 1);;
 		console.log(typeCode);
