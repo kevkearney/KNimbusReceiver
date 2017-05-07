@@ -73,11 +73,11 @@ nrf.begin(function() {
 	rx.on('data', function(d) {
 		
                 var responseBuf = reverse(weathercontrolmsg.encodeMsg(response));
-	        console.log(sizeof(responseBuf));
+//	        console.log(sizeof(responseBuf));
 		tx.write(responseBuf,12);
 		
 		var typeCode = reverse(d).readUIntBE(0, 1);;
-		console.log(typeCode);
+//		console.log(typeCode);
 		
 		if (typeCode === 1) {
 			var data = weatherdatamsg.decodeMsg(reverse(d));
