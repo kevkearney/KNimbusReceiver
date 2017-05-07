@@ -68,24 +68,26 @@ nrf.begin(function() {
 		tx = nrf.openPipe('tx', pipes[0]);
 
 	rx.on('data', function(d) {
+		
+		var responseBuf = weathercontrolmsg.encodeMsg(response);
+		tx.write(reverse(responseBuf), sizeof(responseBuf));
+		
 		var typeCode = reverse(d).readUIntBE(0, 1);;
 		console.log(typeCode);
 		
 		if (typeCode === 1) {
 			var data = weatherdatamsg.decodeMsg(reverse(d));
 			console.log(data);
-
+        
 		}
 		else if(typeCode === 2) {
-			var otherdata = lightningMsg.decodeMsg(reverse(d));
-			console.log(otherdata);
+			var data = lightningMsg.decodeMsg(reverse(d));
+			console.log(data);
 		}
 		else{
 				console.warn("No suitable struct found for decode.");
 		}
-		var responseBuf = weathercontrolmsg.encodeMsg(response);
-
-		tx.write(reverse(responseBuf), sizeof(responseBuf));
+	
 
 	});
 	tx.on('error', function(e) {
