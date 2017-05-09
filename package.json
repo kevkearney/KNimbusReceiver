@@ -24,6 +24,8 @@
   "homepage": "https://github.com/kevkearney/knimbus-recv#readme",
   "dependencies": {
     "bootstrap": "^3.3.7",
+    "buffer-reverse": "^1.0.1",
+    "cppmsg": "^1.0.2",
     "express": "^4.15.2",
     "mongodb": "^2.2.25",
     "mongoose": "^4.9.3",

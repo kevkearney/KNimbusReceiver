@@ -81,11 +81,13 @@
 
         tr = $('<tr/>');
         tr.append("<td>" + new Date(msg.SampleDate).toLocaleDateString() + "    " + new Date(msg.SampleDate).toLocaleTimeString() + "</td>");
+
         tr.append("<td>" + EnclosureTemp + " F" + "</td>");
         tr.append("<td>" + BarometricPressure + " inHg" + "</td>");
         tr.append("<td>" + Temperature + " F" + "</td>");
         tr.append("<td>" + Humidity + " %" + "</td>");
         tr.append("<td>" + Light + " Lux " + "</td>");
+
         $('#weathertable').append(tr);
       });
 

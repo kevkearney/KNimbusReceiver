@@ -6,9 +6,9 @@ var reverse = require("buffer-reverse");
 
 //Test code, remove when complete
 var response = {
-        SleepTime: 30,
+        SleepTime: 10,
         LightningIndoors: false,
-        LightningTune: 2,
+        LightningTune: 0,
         LightningNoiseFloor: 4,
         RadioPower: 3,
         SystemReset: 0
@@ -19,7 +19,7 @@ var weatherdatamsg = new cppMsg.msg(
 	[
 		['MessageType', 'int8'],
 		['Temperature', 'int16'],
-		['Humidity', 'int16'],
+		['Humidty', 'int16'],
 		['BaroPressure', 'int16'],
 		['BaroTemperature', 'int16'],
 		['Lux', 'uint16']
@@ -88,9 +88,6 @@ nrf.begin(function() {
 		else if(typeCode === 2) {
 			var data = lightningMsg.decodeMsg(reverse(d));
 			console.log(data);
- console.log(data);
-                        data.SampleDate = new Date();
-
 			weatherDB.insertLightning(data, () => {
                                         socket.emit('lightning message', data);
 				});
@@ -98,8 +95,6 @@ nrf.begin(function() {
 		else{
 				console.warn("No suitable struct found for decode.");
 		}
- var responseBuf = reverse(weathercontrolmsg.encodeMsg(response));
-                tx.write(responseBuf,sizeof(responseBuf));
 	
 
 	});
