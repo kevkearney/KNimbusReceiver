@@ -19,7 +19,7 @@ var weatherdatamsg = new cppMsg.msg(
 	[
 		['MessageType', 'int8'],
 		['Temperature', 'int16'],
-		['Humidty', 'int16'],
+		['Humidity', 'int16'],
 		['BaroPressure', 'int16'],
 		['BaroTemperature', 'int16'],
 		['Lux', 'uint16']
