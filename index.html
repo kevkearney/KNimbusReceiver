@@ -21,6 +21,10 @@
       google.charts.load('current', { callback: init,'packages':['gauge','corechart']});
    
 
+       
+       
+function init() {
+  
 	var tempGaugeData;
         var pressureGaugeData;
         var humidityGaugeData;      
@@ -66,9 +70,7 @@
 
         chart.draw(data, options);
     }     
-       
-       
-function init() {
+  
    var socket = io();
         socket.on('weather message', function(msg){        
         var tr;
