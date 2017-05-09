@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <title>Weather Table</title>
   <meta charset="utf-8">
@@ -9,63 +10,144 @@
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
   <script src="/socket.io/socket.io.js"></script>
   <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+  <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>  
 </head>
+
 <body>
   <script>
-   $(function () {
-        var socket = io();
-        socket.on('weather message', function(msg){        
+    google.charts.load('current', { callback: init, 'packages': ['gauge', 'corechart'] });
+
+    function init() {
+
+      function drawTempChart(data) {
+        var options = {
+          width: 800, height: 240,
+          min: -40, max: 120,
+          redFrom: 95, redTo: 120,
+          yellowFrom: 85, yellowTo: 95,
+          minorTicks: 10
+        };
+        var chart = new google.visualization.Gauge(document.getElementById('temp_chart_div'));
+        chart.draw(data, options);
+      }
+      function drawHumidityChart(data) {
+        var options = {
+          width: 800, height: 240,
+          min: 0, max: 100,
+          redFrom: 70, redTo: 100,
+          yellowFrom: 50, yellowTo: 70,
+          greenFrom: 35, greenTo: 50,
+          minorTicks: 10
+        };
+        var chart = new google.visualization.Gauge(document.getElementById('humidity_chart_div'));
+        chart.draw(data, options);
+      }
+
+      function drawPressureChart(data) {
+        var options = {
+          width: 800, height: 240,
+          min: 28.00, max: 32.00,
+          minorTicks: 10
+        };
+        var chart = new google.visualization.Gauge(document.getElementById('pressure_chart_div'));
+        chart.draw(data, options);
+      }
+
+      var socket = io();
+      socket.on('weather message', function (msg) {
         var tr;
+        var Temperature = toFahrenheit(msg.Temperature / 100).toFixed(2);
+        var Humidity = msg.Humidity / 100;
+        var BarometricPressure = toSeaLevelPressure(msg.BaroPressure / 10).toFixed(2);
+        var EnclosureTemp = toFahrenheit(msg.BaroTemperature / 100).toFixed(2);
+        var Light = msg.Lux;
+
+        pressureGaugeData = google.visualization.arrayToDataTable([
+          ['Label', 'Value'],
+          ['Pressure (inHg)', Number(BarometricPressure)]
+        ]);
+        tempGaugeData = google.visualization.arrayToDataTable([
+          ['Label', 'Value'],
+          ['Temperature (F)', Number(Temperature)]
+        ]);
+
+        humidityGaugeData = google.visualization.arrayToDataTable([
+          ['Label', 'Value'],
+          ['Humidity%', Number(Humidity)]
+        ]);
+        drawPressureChart(pressureGaugeData);
+        drawTempChart(tempGaugeData);
+        drawHumidityChart(humidityGaugeData);
+
         tr = $('<tr/>');
         tr.append("<td>" + new Date(msg.SampleDate).toLocaleDateString() + "    " + new Date(msg.SampleDate).toLocaleTimeString() + "</td>");
-        tr.append("<td>" + toFahrenheit(msg.BaroTemperature/100).toFixed(2) + " F"+ "</td>");
-        tr.append("<td>" + toSeaLevelPressure(msg.BaroPressure/10).toFixed(2) + " inHg" + "</td>");
-        tr.append("<td>" + toFahrenheit(msg.Temperature/100).toFixed(2) +" F" + "</td>");
-        tr.append("<td>" + (msg.Humidity/100).toFixed(2) + " %"  + "</td>");
-        tr.append("<td>" + msg.Lux + " Lux "+ "</td>");
+
+        tr.append("<td>" + EnclosureTemp + " F" + "</td>");
+        tr.append("<td>" + BarometricPressure + " inHg" + "</td>");
+        tr.append("<td>" + Temperature + " F" + "</td>");
+        tr.append("<td>" + Humidity + " %" + "</td>");
+        tr.append("<td>" + Light + " Lux " + "</td>");
+
         $('#weathertable').append(tr);
-    }); 
-    
-       socket.on('lightning message', function(msg){        
+      });
+
+      socket.on('lightning message', function (msg) {
         var tr;
         tr = $('<tr/>');
         tr.append("<td>" + new Date(msg.SampleDate).toLocaleDateString() + "    " + new Date(msg.SampleDate).toLocaleTimeString() + "</td>");
         tr.append("<td>" + msg.EventType + "</td>");
         tr.append("<td>" + msg.Distance + "</td>");
         $('#lightningtable').append(tr);
-    }); 
-       });
+      });
+    }
 
-function toFahrenheit(c) {
-    return c *(9/5) +32;
-}
+    function toFahrenheit(c) {
+      return c * (9 / 5) + 32;
+    }
 
-function toSeaLevelPressure(hpa){
-  var sl = hpa / Math.pow(1.0 - (342/44330.0), 5.255);
-  return sl / 33.8638866667;
-}
+    function toSeaLevelPressure(hpa) {
+      var sl = hpa / Math.pow(1.0 - (342 / 44330.0), 5.255);
+      return sl / 33.8638866667;
+    }
   </script>
+
   <body>
-<div class="col-xs-6 table-responsive ">
-    <table id="weathertable" class='table table-striped'>
-    <tr>
-   <th>Sample Date</th>
-   <th>Baro Temp</th>
-   <th>Baro Pessure</th>
-   <th>Temperature</th>
-   <th>Humidity</th>
-   <th>Light Level</th>
- </tr>
-    </table>
-</div>
-<div class="col-xs-3 table-responsive">
-   <table id="lightningtable" class='table table-striped'>
-    <tr>
-   <th>Sample Date</th>
-   <th>Event Type</th>
-   <th>Distance</th>
- </tr>
-    </table>
-</div>
+     <div class"col-xs-3>
+      <table>
+        <tr>
+          <td>
+            <div id="temp_chart_div"></div>
+          </td>
+          <td>
+            <div id="pressure_chart_div"></div>
+          </td>
+          <td>
+            <div id="humidity_chart_div"></div>
+          </td>
+        </tr>
+      </table>
+    </div>
+    <div class="col-xs-6 table-responsive ">
+      <table id="weathertable" class='table table-striped'>
+        <tr>
+          <th>Sample Date</th>
+          <th>Enclosure Temp</th>
+          <th>Baro Pessure</th>
+          <th>Temperature</th>
+          <th>Humidity</th>
+          <th>Light Level</th>
+        </tr>
+      </table>
+    </div>
+    <div class="col-xs-3 table-responsive">
+      <table id="lightningtable" class='table table-striped'>
+        <tr>
+          <th>Sample Date</th>
+          <th>Event Type</th>
+          <th>Distance</th>
+        </tr>
+      </table>
+    </div>
   </body>
+
 </html>
