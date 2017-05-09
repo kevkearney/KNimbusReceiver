@@ -87,8 +87,6 @@ nrf.begin(function() {
 
 		else if(typeCode === 2) {
 			var data = lightningMsg.decodeMsg(reverse(d));
-			console.log(data);
- console.log(data);
                         data.SampleDate = new Date();
 
 			weatherDB.insertLightning(data, () => {
@@ -102,10 +100,6 @@ nrf.begin(function() {
                 tx.write(responseBuf,sizeof(responseBuf));
 	
 
-	});
-	tx.on('error', function(e) {
-		console.warn("Error sending reply.", e);
-		process.exit();
 	});
 	tx.on('error', function(e) {
 		console.warn("Error sending reply.", e);
