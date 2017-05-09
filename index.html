@@ -93,9 +93,9 @@ function init() {
           ['Label', 'Value'],
           ['Humidty', Temperature]
         ]);
-        drawPressureChart(pressureGaugeData);
-        drawTemperatureChart(tempGaugeData);
-        drawHumityChart(humidityGaugeData);
+        this.drawPressureChart(pressureGaugeData);
+        this.drawTemperatureChart(tempGaugeData);
+        this.drawHumityChart(humidityGaugeData);
         tr = $('<tr/>');
         tr.append("<td>" + new Date(msg.SampleDate).toLocaleDateString() + "    " + new Date(msg.SampleDate).toLocaleTimeString() + "</td>");
         tr.append("<td>" + EnclosureTemp + " F"+ "</td>");
