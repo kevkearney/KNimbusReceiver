@@ -19,52 +19,7 @@
   <script>
  
       google.charts.load('current', { callback: init,'packages':['gauge','corechart']});
-      
-function init() {
-   var socket = io();
-        socket.on('weather message', function(msg){        
-        var tr;
-        var Temperature = toFahrenheit(msg.Temperature/100).toFixed(2);
-        var Humidty = msg.Humidity/100;
-        var BarometricPressure = toSeaLevelPressure(msg.BaroPressure/10).toFixed(2);
-        var EnclosureTemp = toFahrenheit(msg.BaroTemperature/100).toFixed(2);
-        var Light = msg.Lux;
-        
-        pressureGaugeData = google.visualization.arrayToDataTable([
-          ['Label', 'Value'],
-          ['Pressure', BarometricPressure]
-        ]);
-        tempGaugeData = google.visualization.arrayToDataTable([
-          ['Label', 'Value'],
-          ['Temperature', Temperature]
-        ]);
-        
-        humidityGaugeData = google.visualization.arrayToDataTable([
-          ['Label', 'Value'],
-          ['Humidty', Temperature]
-        ]);
-        this.drawPressureChart(pressureGaugeData);
-        this.drawTemperatureChart(tempGaugeData);
-        this.drawHumityChart(humidityGaugeData);
-        tr = $('<tr/>');
-        tr.append("<td>" + new Date(msg.SampleDate).toLocaleDateString() + "    " + new Date(msg.SampleDate).toLocaleTimeString() + "</td>");
-        tr.append("<td>" + EnclosureTemp + " F"+ "</td>");
-        tr.append("<td>" + BarometricPressure + " inHg" + "</td>");
-        tr.append("<td>" + Temperature  +" F" + "</td>");
-        tr.append("<td>" + Humidty + " %"  + "</td>");
-        tr.append("<td>" + Light + " Lux "+ "</td>");
-        $('#weathertable').append(tr);
-    }); 
-    
-       socket.on('lightning message', function(msg){        
-        var tr;
-        tr = $('<tr/>');
-        tr.append("<td>" + new Date(msg.SampleDate).toLocaleDateString() + "    " + new Date(msg.SampleDate).toLocaleTimeString() + "</td>");
-        tr.append("<td>" + msg.EventType + "</td>");
-        tr.append("<td>" + msg.Distance + "</td>");
-        $('#lightningtable').append(tr);
-    }); 
-}
+   
 
 	var tempGaugeData;
         var pressureGaugeData;
@@ -112,7 +67,52 @@ function init() {
         chart.draw(data, options);
     }     
        
+       
+function init() {
+   var socket = io();
+        socket.on('weather message', function(msg){        
+        var tr;
+        var Temperature = toFahrenheit(msg.Temperature/100).toFixed(2);
+        var Humidty = msg.Humidity/100;
+        var BarometricPressure = toSeaLevelPressure(msg.BaroPressure/10).toFixed(2);
+        var EnclosureTemp = toFahrenheit(msg.BaroTemperature/100).toFixed(2);
+        var Light = msg.Lux;
         
+        pressureGaugeData = google.visualization.arrayToDataTable([
+          ['Label', 'Value'],
+          ['Pressure', BarometricPressure]
+        ]);
+        tempGaugeData = google.visualization.arrayToDataTable([
+          ['Label', 'Value'],
+          ['Temperature', Temperature]
+        ]);
+        
+        humidityGaugeData = google.visualization.arrayToDataTable([
+          ['Label', 'Value'],
+          ['Humidty', Temperature]
+        ]);
+        drawPressureChart(pressureGaugeData);
+        drawTemperatureChart(tempGaugeData);
+        drawHumityChart(humidityGaugeData);
+        tr = $('<tr/>');
+        tr.append("<td>" + new Date(msg.SampleDate).toLocaleDateString() + "    " + new Date(msg.SampleDate).toLocaleTimeString() + "</td>");
+        tr.append("<td>" + EnclosureTemp + " F"+ "</td>");
+        tr.append("<td>" + BarometricPressure + " inHg" + "</td>");
+        tr.append("<td>" + Temperature  +" F" + "</td>");
+        tr.append("<td>" + Humidty + " %"  + "</td>");
+        tr.append("<td>" + Light + " Lux "+ "</td>");
+        $('#weathertable').append(tr);
+    }); 
+    
+       socket.on('lightning message', function(msg){        
+        var tr;
+        tr = $('<tr/>');
+        tr.append("<td>" + new Date(msg.SampleDate).toLocaleDateString() + "    " + new Date(msg.SampleDate).toLocaleTimeString() + "</td>");
+        tr.append("<td>" + msg.EventType + "</td>");
+        tr.append("<td>" + msg.Distance + "</td>");
+        $('#lightningtable').append(tr);
+    }); 
+}    
 
 function toFahrenheit(c) {
     return c *(9/5) +32;
