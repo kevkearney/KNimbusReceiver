@@ -11,7 +11,14 @@
   <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
   <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
    <script type="text/javascript">
-      google.charts.load('current', {'packages':['gauge','corechart']});
+  
+    
+    </script>
+</head>
+<body>
+  <script>
+   $(function () {
+            google.charts.load('current', {'packages':['gauge','corechart']});
       google.charts.setOnLoadCallback(drawTempChart);
       google.charts.setOnLoadCallback(drawHumidityChart);
       google.charts.setOnLoadCallback(drawPressureChart);
@@ -60,13 +67,8 @@
         var chart = new google.visualization.Gauge(document.getElementById('pressure_chart_div'));
 
         chart.draw(data, options);
-    }
-    
-    </script>
-</head>
-<body>
-  <script>
-   $(function () {
+    }       
+       
         var socket = io();
         socket.on('weather message', function(msg){        
         var tr;
