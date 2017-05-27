@@ -11,6 +11,7 @@
   <script src="/socket.io/socket.io.js"></script>
   <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
   <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>  
+  <script src="//cdn.rawgit.com/Mikhus/canvas-gauges/gh-pages/download/2.1.4/radial/gauge.min.js"></script>
 </head>
 
 <body>
@@ -42,6 +43,18 @@
         var chart = new google.visualization.Gauge(document.getElementById('humidity_chart_div'));
         chart.draw(data, options);
       }
+      function drawWindSpeedChart(data) {
+        var options = {
+          width: 800, height: 240,
+          min: 0, max: 200,
+          redFrom: 70, redTo: 200,
+          yellowFrom: 50, yellowTo: 70,
+          greenFrom: 35, greenTo: 50,
+          minorTicks: 5
+        };
+        var chart = new google.visualization.Gauge(document.getElementById('windspeed_chart_div'));
+        chart.draw(data, options);
+      }
 
       function drawPressureChart(data) {
         var options = {
@@ -52,7 +65,7 @@
         var chart = new google.visualization.Gauge(document.getElementById('pressure_chart_div'));
         chart.draw(data, options);
       }
-
+      var totalRainClicks =0;
       var socket = io();
       socket.on('weather message', function (msg) {
         var tr;
@@ -61,6 +74,13 @@
         var BarometricPressure = toSeaLevelPressure(msg.BaroPressure / 10).toFixed(2);
         var EnclosureTemp = toFahrenheit(msg.BaroTemperature / 100).toFixed(2);
         var Light = msg.Lux;
+        var WindSpeed = msg.WindSpeed/100;
+        var WindDirection = msg.WindDirection;
+        var Cycles = msg.Cycles;
+        totalRainClicks = totalRainClicks + msg.RainClicks;
+        
+		gauge.draw();
+	    gauge.value = WindDirection;
 
         pressureGaugeData = google.visualization.arrayToDataTable([
           ['Label', 'Value'],
@@ -75,19 +95,31 @@
           ['Label', 'Value'],
           ['Humidity%', Number(Humidity)]
         ]);
+        windSpeedGaugeData = google.visualization.arrayToDataTable([
+          ['Label', 'Value'],
+          ['WindSpeed', Number(WindSpeed)]
+        ]);
+
+
         drawPressureChart(pressureGaugeData);
         drawTempChart(tempGaugeData);
         drawHumidityChart(humidityGaugeData);
+        drawWindSpeedChart(windSpeedGaugeData);
 
         tr = $('<tr/>');
+        tr.append("<td>" + Cycles + "</td>");
         tr.append("<td>" + new Date(msg.SampleDate).toLocaleDateString() + "    " + new Date(msg.SampleDate).toLocaleTimeString() + "</td>");
-
+        
         tr.append("<td>" + EnclosureTemp + " F" + "</td>");
         tr.append("<td>" + BarometricPressure + " inHg" + "</td>");
         tr.append("<td>" + Temperature + " F" + "</td>");
         tr.append("<td>" + Humidity + " %" + "</td>");
-        tr.append("<td>" + Light + " Lux " + "</td>");
-
+        tr.append("<td>" + Light + " Lux" + "</td>");
+        tr.append("<td>" + WindSpeed + " MPH" +  "</td>");
+        tr.append("<td>" + WindDirection + " Degrees" + "</td>");
+        tr.append("<td>" + msg.RainClicks + "</td>");
+        tr.append("<td>" + totalRainClicks + "</td>");
+        tr.append("<td>" + (totalRainClicks * .01) + " in" + "</td>");
         $('#weathertable').append(tr);
       });
 
@@ -124,18 +156,32 @@
           <td>
             <div id="humidity_chart_div"></div>
           </td>
+          <td>
+            <div id="windspeed_chart_div"></div>
+          </td>
+          <td>
+<div id="windDirection">
+<canvas id="compass"></canvas>
+</div>
+         </td>
         </tr>
       </table>
     </div>
-    <div class="col-xs-6 table-responsive ">
+    <div class="col-xs-9 table-responsive ">
       <table id="weathertable" class='table table-striped'>
         <tr>
+          <th>Cycle</th>
           <th>Sample Date</th>
           <th>Enclosure Temp</th>
           <th>Baro Pessure</th>
           <th>Temperature</th>
           <th>Humidity</th>
           <th>Light Level</th>
+          <th>WindSpeed</th>
+          <th>Wind Direction</th>
+          <th>Rain Clicks</th>
+          <th>Total Rain Clicks</th>
+          <th>Rainfall</th>
         </tr>
       </table>
     </div>
@@ -148,6 +194,58 @@
         </tr>
       </table>
     </div>
+	<script>
+var gauge = new RadialGauge({
+    renderTo: 'compass',
+    minValue: 0,
+    maxValue: 360,
+    majorTicks: [
+        "N",
+        "NE",
+        "E",
+        "SE",
+        "S",
+        "SW",
+        "W",
+        "NW",
+        "N"
+    ],
+    minorTicks: 22,
+	ticksAngle: 360,
+    startAngle: 180,
+    strokeTicks: false,
+    highlights: false,
+    colorPlate: "#222",
+    colorMajorTicks: "#f5f5f5",
+    colorMinorTicks: "#ddd",
+    colorNumbers: "#ccc",
+    colorNeedle: "rgba(240, 128, 128, 1)",
+    colorNeedleEnd: "rgba(255, 160, 122, .9)",
+    valueBox: true,
+    valueTextShadow: false,
+    colorCircleInner: "#fff",
+    colorNeedleCircleOuter: "#ccc",
+    needleCircleSize: 15,
+    needleCircleOuter: false,
+    animationRule: "linear",
+    needleType: "line",
+    needleStart: 75,
+    needleEnd: 99,
+    needleWidth: 3,
+    borders: true,
+    borderInnerWidth: 0,
+    borderMiddleWidth: 0,
+    borderOuterWidth: 10,
+    colorBorderOuter: "#ccc",
+    colorBorderOuterEnd: "#ccc",
+    colorNeedleShadowDown: "#222",
+    borderShadowWidth: 0,
+    animationDuration: 1500,
+	width:800,
+	height:240
+});
+</script>
   </body>
 
 </html>
+
