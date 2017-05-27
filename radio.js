@@ -6,7 +6,7 @@ var reverse = require("buffer-reverse");
 
 //Test code, remove when complete
 var response = {
-        SleepTime: 30,
+        SleepTime: 60,
         LightningIndoors: false,
         LightningTune: 2,
         LightningNoiseFloor: 4,
@@ -22,7 +22,12 @@ var weatherdatamsg = new cppMsg.msg(
 		['Humidity', 'int16'],
 		['BaroPressure', 'int16'],
 		['BaroTemperature', 'int16'],
-		['Lux', 'uint16']
+                ['BaroHumidity','int16'],
+                ['Lux', 'uint16'],
+                ['WindSpeed','int16'],
+                ['WindDirection','int16'],
+                ['RainClicks','uint16'],
+                ['Cycles','uint16']
 	]
 );
 
@@ -52,7 +57,7 @@ var socket = require('socket.io-client')('http://localhost:3000');
 
 var NRF24 = require('nrf'),
 	spiDev = "/dev/spidev0.0",
-	cePin = 24,
+	cePin = 22,
 	irqPin = 25, //var ce = require("./gpio").connect(cePin)
 	pipes = [0xF0F0F0F0E1, 0xF0F0F0F0D2];
 var nrf = NRF24.connect(spiDev, cePin, irqPin);
@@ -98,6 +103,9 @@ nrf.begin(function() {
 		}
  var responseBuf = reverse(weathercontrolmsg.encodeMsg(response));
                 tx.write(responseBuf,sizeof(responseBuf));
+                
+response.SystemReset = 0;
+console.log(response);
 	
 
 	});
