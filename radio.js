@@ -1,17 +1,18 @@
+
 var sizeof = require('object-sizeof');
 var weatherDB = require("./data/weatherDB");
 var cppMsg = require('./node_modules/cppmsg/cppMsg.js');
 var reverse = require("buffer-reverse");
 
 
-//Test code, remove when complete
 var response = {
-        SleepTime: 60,
+        SleepTime: 30,
         LightningIndoors: false,
         LightningTune: 2,
         LightningNoiseFloor: 4,
         RadioPower: 3,
-        SystemReset: 0
+        SystemReset: 0,
+		EnableDisturbers: 1
 };
 
 
@@ -27,7 +28,8 @@ var weatherdatamsg = new cppMsg.msg(
                 ['WindSpeed','int16'],
                 ['WindDirection','int16'],
                 ['RainClicks','uint16'],
-                ['Cycles','uint16']
+                ['Cycles','uint16'],
+				['TotalRainClicks', 'uint16']
 	]
 );
 
@@ -47,13 +49,12 @@ var weathercontrolmsg = new cppMsg.msg(
 		['LightningTune', 'int16'],
 		['LightningNoiseFloor', 'int16'],
 		['RadioPower', 'int16'],
-		['SystemReset', 'bool']
+		['SystemReset', 'bool'],
+		['EnableDisturbers', 'bool']
 	]
 );
 
 var socket = require('socket.io-client')('http://localhost:3000');
-
-
 
 var NRF24 = require('nrf'),
 	spiDev = "/dev/spidev0.0",
@@ -67,14 +68,14 @@ nrf.transmitPower('PA_MAX');
 nrf.dataRate('1Mbps') // Set data rate to 1Mbps
 nrf.crcBytes(2) // Set the CRC to 2
 nrf.autoRetransmit({
-	count: 500,
-	delay: 15
+	count: 30000,
+	delay: 2
 });
 nrf.begin(function() {
 	console.log("Radio recevier listening.");
 	var rx = nrf.openPipe('rx', pipes[1]),
 		tx = nrf.openPipe('tx', pipes[0]);
-
+    nrf.printDetails();
 	rx.on('data', function(d) {
 
 		var typeCode = reverse(d).readUIntBE(0, 1);;
@@ -86,8 +87,7 @@ nrf.begin(function() {
 			weatherDB.insertWeather(data, function(currentDate) {
 				socket.emit('weather message', data);
 
-			});
-        
+			});        
 		}
 
 		else if(typeCode === 2) {

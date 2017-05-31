@@ -65,7 +65,7 @@
         var chart = new google.visualization.Gauge(document.getElementById('pressure_chart_div'));
         chart.draw(data, options);
       }
-      var totalRainClicks =0;
+      var InsideTotalRainClicks =0;
       var socket = io();
       socket.on('weather message', function (msg) {
         var tr;
@@ -77,8 +77,9 @@
         var WindSpeed = msg.WindSpeed/100;
         var WindDirection = msg.WindDirection;
         var Cycles = msg.Cycles;
-        totalRainClicks = totalRainClicks + msg.RainClicks;
-        
+        InsideTotalRainClicks = InsideTotalRainClicks + msg.RainClicks;
+        var OutsideTotalRainclicks = msg.TotalRainClicks;
+
 		gauge.draw();
 	    gauge.value = WindDirection;
 
@@ -118,8 +119,10 @@
         tr.append("<td>" + WindSpeed + " MPH" +  "</td>");
         tr.append("<td>" + WindDirection + " Degrees" + "</td>");
         tr.append("<td>" + msg.RainClicks + "</td>");
-        tr.append("<td>" + totalRainClicks + "</td>");
-        tr.append("<td>" + (totalRainClicks * .01) + " in" + "</td>");
+        tr.append("<td>" + InsideTotalRainClicks + "</td>");
+        tr.append("<td>" + OutsideTotalRainclicks + "</td");
+        tr.append("<td>" + (InsideTotalRainClicks * .01) + " in" + "</td>");
+        tr.append("<td>" + (OutsideTotalRainclicks * .01) + " in" + "</td>");
         $('#weathertable').append(tr);
       });
 
@@ -144,7 +147,7 @@
   </script>
 
   <body>
-     <div class"col-xs-3>
+     <div class"col-xs-5>
       <table>
         <tr>
           <td>
@@ -180,8 +183,10 @@
           <th>WindSpeed</th>
           <th>Wind Direction</th>
           <th>Rain Clicks</th>
-          <th>Total Rain Clicks</th>
+          <th>Inside Total Rain Clicks</th>
+          <th>Outside Total Rain Clicks</th>
           <th>Rainfall</th>
+          <th>Outside Rainfall</th>
         </tr>
       </table>
     </div>
@@ -241,8 +246,8 @@ var gauge = new RadialGauge({
     colorNeedleShadowDown: "#222",
     borderShadowWidth: 0,
     animationDuration: 1500,
-	width:800,
-	height:240
+	width:240,
+	height:245
 });
 </script>
   </body>
