@@ -6,13 +6,14 @@ var reverse = require("buffer-reverse");
 
 
 var response = {
-        SleepTime: 30,
+        SleepTime: 60,
         LightningIndoors: false,
-        LightningTune: 2,
+        LightningTune: 0,
         LightningNoiseFloor: 4,
         RadioPower: 3,
         SystemReset: 0,
-		EnableDisturbers: 1
+		EnableDisturbers: 0,
+		ResetRainGauge: 0
 };
 
 
@@ -50,7 +51,8 @@ var weathercontrolmsg = new cppMsg.msg(
 		['LightningNoiseFloor', 'int16'],
 		['RadioPower', 'int16'],
 		['SystemReset', 'bool'],
-		['EnableDisturbers', 'bool']
+		['EnableDisturbers', 'bool'],
+		['ResetRainGauge', 'bool']
 	]
 );
 
@@ -62,20 +64,20 @@ var NRF24 = require('nrf'),
 	irqPin = 25, //var ce = require("./gpio").connect(cePin)
 	pipes = [0xF0F0F0F0E1, 0xF0F0F0F0D2];
 var nrf = NRF24.connect(spiDev, cePin, irqPin);
-
+//nrf._debug = true;
 nrf.channel(0x4c); // Set channel to 76
 nrf.transmitPower('PA_MAX');
 nrf.dataRate('1Mbps') // Set data rate to 1Mbps
 nrf.crcBytes(2) // Set the CRC to 2
 nrf.autoRetransmit({
-	count: 30000,
-	delay: 2
+	count: 1000,
+	delay: 25
 });
 nrf.begin(function() {
 	console.log("Radio recevier listening.");
 	var rx = nrf.openPipe('rx', pipes[1]),
-		tx = nrf.openPipe('tx', pipes[0]);
-    nrf.printDetails();
+		tx = nrf.openPipe('tx', pipes[0],{autoAck:false});
+    //nrf.printDetails();
 	rx.on('data', function(d) {
 
 		var typeCode = reverse(d).readUIntBE(0, 1);;
@@ -102,8 +104,9 @@ nrf.begin(function() {
 				console.warn("No suitable struct found for decode.");
 		}
  var responseBuf = reverse(weathercontrolmsg.encodeMsg(response));
-                tx.write(responseBuf,sizeof(responseBuf));
                 
+                tx.write(responseBuf,sizeof(responseBuf));
+                //nrf.printDetails();
 response.SystemReset = 0;
 console.log(response);
 	
