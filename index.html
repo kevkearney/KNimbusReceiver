@@ -72,6 +72,7 @@
         var Temperature = toFahrenheit(msg.Temperature / 100).toFixed(2);
         var Humidity = msg.Humidity / 100;
         var BarometricPressure = toSeaLevelPressure(msg.BaroPressure / 10).toFixed(2);
+        var BaroHumidity = msg.BaroHumidity / 100;
         var EnclosureTemp = toFahrenheit(msg.BaroTemperature / 100).toFixed(2);
         var Light = msg.Lux;
         var WindSpeed = msg.WindSpeed/100;
@@ -113,6 +114,7 @@
         
         tr.append("<td>" + EnclosureTemp + " F" + "</td>");
         tr.append("<td>" + BarometricPressure + " inHg" + "</td>");
+        tr.append("<td>" + BaroHumidity + " %" + "</td>");
         tr.append("<td>" + Temperature + " F" + "</td>");
         tr.append("<td>" + Humidity + " %" + "</td>");
         tr.append("<td>" + Light + " Lux" + "</td>");
@@ -177,6 +179,7 @@
           <th>Sample Date</th>
           <th>Enclosure Temp</th>
           <th>Baro Pessure</th>
+          <th>Baro Humidity</th>
           <th>Temperature</th>
           <th>Humidity</th>
           <th>Light Level</th>
