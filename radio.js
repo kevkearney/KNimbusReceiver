@@ -6,13 +6,13 @@ var reverse = require("buffer-reverse");
 
 
 var response = {
-        SleepTime: 60,
+        SleepTime: 120,
         LightningIndoors: false,
         LightningTune: 0,
         LightningNoiseFloor: 4,
         RadioPower: 3,
         SystemReset: 0,
-		EnableDisturbers: 0,
+		EnableDisturbers: 1,
 		ResetRainGauge: 0
 };
 
