@@ -12,7 +12,7 @@ var response = {
         LightningNoiseFloor: 4,
         RadioPower: 3,
         SystemReset: 0,
-		EnableDisturbers: 0,
+		EnableDisturbers: 1,
 		ResetRainGauge: 0
 };
 
